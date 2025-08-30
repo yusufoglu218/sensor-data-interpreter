@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    sensor: # --- Sensor Database Configuration (application db) ---
+      jdbc-url: jdbc:postgresql://localhost:5432/sensor_data_db
+      username: app
+      password: app1234
+      driver-class-name: org.postgresql.Driver
+    calibration:  # --- Calibration Database Configuration (External Db for calibration) ---
+      jdbc-url: jdbc:postgresql://localhost:5433/calibration_db
+      username: ext_user
+      password: ext1234
+      driver-class-name: org.postgresql.Driver
+
+  # --- JPA / Hibernate Configuration ---
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  # --- Kafka Consumer Configuration ---
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: sensor_data_interpreter_group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      max-poll-records: 500
+    listener:
+      concurrency: 2
+      ack-mode: manual
+
+# --- Sensor Executor Configuration ---
+sensor:
+  executor:
+    core-pool-size: 50
+    max-pool-size: 50
+    queue-capacity: 1000
+
+# --- swagger configuration ---
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+# --- spring actuator configuration ---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,threaddump,env,beans
+  endpoint:
+    health:
+      show-details: always
