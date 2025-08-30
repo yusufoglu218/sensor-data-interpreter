@@ -29,6 +29,10 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.consumer.max-poll-records}")
     private String maxPollRecords;
 
+    /**
+     * Creates the consumer factory which sets the strategy for creating Kafka consumer instances.
+     * It configures the servers, group ID, and deserializers for keys and values.
+     */
     @Bean
     public ConsumerFactory<String, SensorDataDto> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -45,6 +49,10 @@ public class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
     }
 
+    /**
+     * Creates the container factory for Kafka listeners.
+     * This factory is responsible for creating the message listener container for a given endpoint.*
+     */
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, SensorDataDto> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, SensorDataDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
@@ -54,4 +62,5 @@ public class KafkaConsumerConfig {
 
         return factory;
     }
+
 }

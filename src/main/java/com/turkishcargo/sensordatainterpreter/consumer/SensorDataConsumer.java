@@ -5,6 +5,7 @@ import com.turkishcargo.sensordatainterpreter.service.SensorDataProcessingServic
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ public class SensorDataConsumer {
 
     private final SensorDataProcessingService processingService;
     private final ThreadPoolExecutor sensorExecutor;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @KafkaListener(
             topics = "turkish-cargo-sensors",
@@ -46,6 +48,8 @@ public class SensorDataConsumer {
             processingService.processSensorData(message);
         } catch (Exception e) {
             log.error("Failed message id={}: {}", message.getId(), e.getMessage(), e);
+            kafkaTemplate.send("turkish-cargo-sensors.dlq", message.getId(), message);
         }
     }
+
 }
