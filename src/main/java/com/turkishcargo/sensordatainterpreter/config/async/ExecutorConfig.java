@@ -12,16 +12,16 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class ExecutorConfig {
 
-    @Value("${sensor.executor.core.pool-size:10}")
+    @Value("${processor.executor.core.pool-size:10}")
     private int corePoolSize;
 
-    @Value("${sensor.executor.max.pool-size:50}")
+    @Value("${processor.executor.max.pool-size:50}")
     private int maxPoolSize;
 
-    @Value("${sensor.executor.queue-capacity:1000}")
+    @Value("${processor.executor.queue-capacity:1000}")
     private int queueCapacity;
 
-    @Bean(name = "sensorExecutor")
+    @Bean(name = "processorExecutor")
     public ThreadPoolExecutor sensorExecutor() {
         BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(queueCapacity);
 

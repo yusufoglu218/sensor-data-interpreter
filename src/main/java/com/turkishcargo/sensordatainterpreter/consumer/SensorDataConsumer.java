@@ -4,6 +4,7 @@ import com.turkishcargo.sensordatainterpreter.dto.inbound.SensorDataDto;
 import com.turkishcargo.sensordatainterpreter.service.SensorDataProcessingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
@@ -19,11 +20,14 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class SensorDataConsumer {
 
     private final SensorDataProcessingService processingService;
-    private final ThreadPoolExecutor sensorExecutor;
+    private final ThreadPoolExecutor processorExecutor;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
+    @Value("${kafka.topic.sensor-data-dlq}")
+    private String dlqTopicName;
+
     @KafkaListener(
-            topics = "turkish-cargo-sensors",
+            topics = "${kafka.topic.sensor-data}",
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"
     )
@@ -34,7 +38,7 @@ public class SensorDataConsumer {
 
         for (SensorDataDto message : messages) {
             try {
-                sensorExecutor.submit(() -> processMessage(message));
+                processorExecutor.submit(() -> processMessage(message));
             } catch (RejectedExecutionException e) {
                 log.warn("Executor queue full, processing message in caller thread: {}", message.getId());
                 processMessage(message); // backpressure
@@ -48,7 +52,7 @@ public class SensorDataConsumer {
             processingService.processSensorData(message);
         } catch (Exception e) {
             log.error("Failed message id={}: {}", message.getId(), e.getMessage(), e);
-            kafkaTemplate.send("turkish-cargo-sensors.dlq", message.getId(), message);
+            kafkaTemplate.send(dlqTopicName, message.getId(), message);
         }
     }
 

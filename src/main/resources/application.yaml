@@ -28,8 +28,14 @@ spring:
       concurrency: 2
       ack-mode: manual
 
-# --- Sensor Executor Configuration ---
-sensor:
+# --- kafka topics --
+kafka:
+  topic:
+    sensor-data: turkish-cargo-sensors
+    sensor-data-dlq: turkish-cargo-sensors.dlq
+
+# --- Processor Executor Configuration ---
+processor:
   executor:
     core-pool-size: 50
     max-pool-size: 50
