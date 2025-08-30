@@ -32,7 +32,7 @@ public class SensorDataProcessingService {
 
             List<OperationalSensorData> events = prepareOperationalEvents(data);
             if (!events.isEmpty()) {
-                throw new RuntimeException("Event can not be empty");
+                operationalSensorDataRepository.saveAll(events);
             }
 
             log.info("Processed message id={} -> 1 reading, {} events",
